@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "OfferForge",
+  "version": "1.0.0",
+  "description": "Generate attractive seller finance offers for real estate listings",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}
