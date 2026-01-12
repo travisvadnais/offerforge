@@ -91,6 +91,26 @@ OfferForge.scrapers.zillow = {
       }
     }
 
+    // Zestimate - Zillow's property value estimate
+    // Format: "$380,800 Zestimate®" or "$380,800Zestimate"
+    const zestimatePatterns = [
+      /\$([\d,]+)\s*Zestimate/i,
+      /Zestimate[®:\s]*\$([\d,]+)/i
+    ];
+
+    for (const pattern of zestimatePatterns) {
+      const zestMatch = allText.match(pattern);
+      if (zestMatch) {
+        const zestVal = parseCurrency(zestMatch[1]);
+        if (zestVal && zestVal > 50000 && zestVal < 50000000) {
+          data.estimate = zestVal;
+          data.estimateSource = 'Zestimate';
+          console.log('OfferForge Zestimate found:', zestVal);
+          break;
+        }
+      }
+    }
+
     return data;
   }
 };

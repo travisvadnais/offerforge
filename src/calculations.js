@@ -52,6 +52,51 @@ OfferForge.calculations = {
     return displays[motivation] || displays.low;
   },
 
+  // Calculate appraisal risk based on list price vs estimate
+  calculateAppraisalRisk(listPrice, estimate) {
+    if (!estimate || !listPrice) {
+      return null; // Can't calculate without both values
+    }
+
+    const difference = listPrice - estimate;
+    const percentDiff = (difference / estimate) * 100;
+
+    let risk, status, color, icon;
+
+    if (percentDiff > 20) {
+      risk = 'high';
+      status = 'Unlikely to Appraise';
+      color = '#e74c3c';
+      icon = '⚠️';
+    } else if (percentDiff > 10) {
+      risk = 'moderate';
+      status = 'May Have Issues';
+      color = '#e67e22';
+      icon = '⚡';
+    } else if (percentDiff > 0) {
+      risk = 'low';
+      status = 'Likely to Appraise';
+      color = '#f1c40f';
+      icon = '✓';
+    } else {
+      risk = 'none';
+      status = 'Should Appraise';
+      color = '#27ae60';
+      icon = '✓';
+    }
+
+    return {
+      risk,
+      status,
+      color,
+      icon,
+      estimate,
+      listPrice,
+      difference,
+      percentDiff: percentDiff.toFixed(1)
+    };
+  },
+
   // Calculate full offer details
   calculateOffer(state) {
     const offerPrice = state.listPrice * (state.offerPricePercent / 100);
