@@ -3,6 +3,50 @@ window.OfferForge = window.OfferForge || {};
 OfferForge.ui = OfferForge.ui || {};
 
 OfferForge.ui.modal = {
+  // Create the appraisal indicator HTML
+  createAppraisalHTML(state) {
+    const { formatCurrency } = OfferForge.utils;
+    const appraisal = OfferForge.calculations.calculateAppraisalRisk(state.listPrice, state.estimate);
+
+    if (!appraisal) {
+      return ''; // No estimate available
+    }
+
+    const diffSign = appraisal.difference >= 0 ? '+' : '';
+    const diffText = `${diffSign}${appraisal.percentDiff}%`;
+
+    return `
+      <div class="offerforge-section offerforge-appraisal">
+        <div class="offerforge-appraisal-card offerforge-appraisal-${appraisal.risk}">
+          <div class="offerforge-appraisal-header">
+            <span class="offerforge-appraisal-icon">${appraisal.icon}</span>
+            <span class="offerforge-appraisal-status" style="color: ${appraisal.color}">${appraisal.status}</span>
+          </div>
+          <div class="offerforge-appraisal-details">
+            <div class="offerforge-appraisal-row">
+              <span>List Price</span>
+              <span>${formatCurrency(state.listPrice)}</span>
+            </div>
+            <div class="offerforge-appraisal-row">
+              <span>${state.estimateSource || 'Estimate'}</span>
+              <span>${formatCurrency(state.estimate)}</span>
+            </div>
+            <div class="offerforge-appraisal-row offerforge-appraisal-diff" style="color: ${appraisal.color}">
+              <span>Difference</span>
+              <span>${diffText} (${formatCurrency(Math.abs(appraisal.difference))})</span>
+            </div>
+          </div>
+          <div class="offerforge-appraisal-note">
+            ${appraisal.risk === 'high' ? 'Properties listed >20% above estimate often fail to appraise at contract price.' :
+              appraisal.risk === 'moderate' ? 'This property may face appraisal challenges. Consider negotiating.' :
+              appraisal.risk === 'low' ? 'Slight premium over estimate, but should appraise.' :
+              'Listed at or below estimate - appraisal should not be an issue.'}
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
   // Create the results section HTML
   createResultsHTML(calc, state) {
     const { formatCurrency, formatMonthly } = OfferForge.utils;
@@ -142,6 +186,9 @@ OfferForge.ui.modal = {
               </div>
             </div>
           </div>
+
+          <!-- Appraisal Risk Indicator -->
+          ${this.createAppraisalHTML(state)}
 
           <!-- Offer Terms Section -->
           <div class="offerforge-section">

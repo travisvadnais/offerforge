@@ -85,6 +85,40 @@ OfferForge.scrapers.redfin = {
       }
     }
 
+    // Redfin Estimate - try CSS selectors first
+    const redfinEstimateSelectors = [
+      '.RedfinEstimateValueHeader .price',
+      '.redfinEstimateInfoPanel .price',
+      '.RedfinEstimateSectionRemodel .price'
+    ];
+
+    let estimateText = getTextFromSelectors(redfinEstimateSelectors);
+
+    // Fallback: try pattern matching for "Redfin Estimate" text
+    if (!estimateText) {
+      const estimatePatterns = [
+        /Redfin\s*Estimate[:\s]*\$([\d,]+)/i,
+        /\$([\d,]+)\s*Redfin\s*Estimate/i
+      ];
+
+      for (const pattern of estimatePatterns) {
+        const estMatch = allText.match(pattern);
+        if (estMatch) {
+          estimateText = '$' + estMatch[1];
+          break;
+        }
+      }
+    }
+
+    if (estimateText) {
+      const estVal = parseCurrency(estimateText);
+      if (estVal && estVal > 50000 && estVal < 50000000) {
+        data.estimate = estVal;
+        data.estimateSource = 'Redfin Estimate';
+        console.log('OfferForge Redfin Estimate found:', estVal);
+      }
+    }
+
     return data;
   }
 };

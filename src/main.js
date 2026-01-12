@@ -45,6 +45,12 @@
     if (data.annualInsurance) state.annualInsurance = data.annualInsurance;
     if (data.monthlyHoa !== undefined) state.monthlyHoa = data.monthlyHoa || 0;
 
+    // Store estimate data (Zestimate or Redfin Estimate)
+    if (data.estimate) {
+      state.estimate = data.estimate;
+      state.estimateSource = data.estimateSource;
+    }
+
     estimateMissingValues();
     applyRecommendedTerms();
     hasScraped = true;
